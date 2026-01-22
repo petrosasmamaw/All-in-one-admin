@@ -4,32 +4,27 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchAllClients } from '../Slice/clientSlice'
 import { fetchAllItems } from '../Slice/itemSlice'
 import { fetchAllSellers } from '../Slice/sellersSlice'
+import { Bar, Pie } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js'
 
-const SmallBarChart = ({ data }) => {
-	const labels = Object.keys(data)
-	const values = Object.values(data)
-	const max = Math.max(...values, 1)
-	const width = 400
-	const height = 180
-	const barWidth = Math.floor(width / labels.length) - 20
-
-	return (
-		<svg width={width} height={height}>
-			{values.map((v, i) => {
-				const barHeight = Math.round((v / max) * (height - 40))
-				const x = i * (barWidth + 20) + 20
-				const y = height - barHeight - 20
-				return (
-					<g key={labels[i]}>
-						<rect x={x} y={y} width={barWidth} height={barHeight} fill="#4f46e5" rx={4} />
-						<text x={x + barWidth / 2} y={height - 6} fontSize={12} textAnchor="middle">{labels[i]}</text>
-						<text x={x + barWidth / 2} y={y - 6} fontSize={12} textAnchor="middle">{v}</text>
-					</g>
-				)
-			})}
-		</svg>
-	)
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+)
 
 const Dashboard = () => {
 	const dispatch = useDispatch()
@@ -50,53 +45,156 @@ const Dashboard = () => {
 
 	const loading = [clientsState.status, itemsState.status, sellersState.status].includes('loading')
 
+	const barData = {
+		labels: ['Clients', 'Items', 'Sellers'],
+		datasets: [
+			{
+				label: 'Count',
+				data: [clientsCount, itemsCount, sellersCount],
+				backgroundColor: [
+					'rgba(75, 192, 192, 0.6)',
+					'rgba(54, 162, 235, 0.6)',
+					'rgba(255, 206, 86, 0.6)',
+				],
+				borderColor: [
+					'rgba(75, 192, 192, 1)',
+					'rgba(54, 162, 235, 1)',
+					'rgba(255, 206, 86, 1)',
+				],
+				borderWidth: 1,
+			},
+		],
+	}
+
+	const barOptions = {
+		responsive: true,
+		plugins: {
+			legend: {
+				position: 'top',
+			},
+			title: {
+				display: true,
+				text: 'Platform Overview',
+			},
+		},
+	}
+
+	const pieData = {
+		labels: ['Clients', 'Items', 'Sellers'],
+		datasets: [
+			{
+				data: [clientsCount, itemsCount, sellersCount],
+				backgroundColor: [
+					'rgba(255, 99, 132, 0.6)',
+					'rgba(54, 162, 235, 0.6)',
+					'rgba(255, 206, 86, 0.6)',
+				],
+				borderColor: [
+					'rgba(255, 99, 132, 1)',
+					'rgba(54, 162, 235, 1)',
+					'rgba(255, 206, 86, 1)',
+				],
+				borderWidth: 1,
+			},
+		],
+	}
+
+	const pieOptions = {
+		responsive: true,
+		plugins: {
+			legend: {
+				position: 'bottom',
+			},
+			title: {
+				display: true,
+				text: 'Distribution',
+			},
+		},
+	}
+
 	return (
 		<div className="dashboard">
 			<div className="page-header-row">
 				<div className="page-icon" aria-hidden>📊</div>
 				<div>
 					<h3>Dashboard</h3>
-					<p className="muted">Overview of platform activity and quick controls.</p>
-				</div>
-			</div>
-			<h2>Dashboard</h2>
-			<p className="dashboard-intro">Welcome back — here's a quick overview of system activity and totals for clients, items, and registered sellers. </p>
-
-			<div className="stats-row">
-				<div className="stat-card">
-					<div className="label"><span className="stat-icon">📇</span>Clients</div>
-					<div className="value">{loading ? '...' : clientsCount}</div>
-					<div className="stat-desc">Total registered clients in the system</div>
-				</div>
-
-				<div className="stat-card">
-					<div className="label"><span className="stat-icon">🛍️</span>Items</div>
-					<div className="value">{loading ? '...' : itemsCount}</div>
-					<div className="stat-desc">Active items available for purchase</div>
-				</div>
-
-				<div className="stat-card">
-					<div className="label"><span className="stat-icon">🏬</span>Sellers</div>
-					<div className="value">{loading ? '...' : sellersCount}</div>
-					<div className="stat-desc">Registered seller accounts</div>
+					<p className="muted">Comprehensive overview of platform activity and insights.</p>
 				</div>
 			</div>
 
-			<div className="overview">
-				<h3>Overview</h3>
-				<p className="overview-desc">The chart below visualizes the current counts. Use this as a quick health-check of the catalog and user base.</p>
-				<div className="chart-wrap">
-					<SmallBarChart data={{ Clients: clientsCount, Items: itemsCount, Sellers: sellersCount }} />
+			<div className="dashboard-intro">
+				<h2>Welcome to the Admin Dashboard</h2>
+				<p>Monitor key metrics, visualize data, and manage your platform efficiently.</p>
+			</div>
+
+			<div className="stats-grid">
+				<div className="stat-card">
+					<div className="stat-icon">👥</div>
+					<div className="stat-content">
+						<h4>Clients</h4>
+						<div className="stat-value">{loading ? '...' : clientsCount}</div>
+						<p>Total registered clients</p>
+					</div>
+				</div>
+
+				<div className="stat-card">
+					<div className="stat-icon">🛒</div>
+					<div className="stat-content">
+						<h4>Items</h4>
+						<div className="stat-value">{loading ? '...' : itemsCount}</div>
+						<p>Active items for sale</p>
+					</div>
+				</div>
+
+				<div className="stat-card">
+					<div className="stat-icon">🏪</div>
+					<div className="stat-content">
+						<h4>Sellers</h4>
+						<div className="stat-value">{loading ? '...' : sellersCount}</div>
+						<p>Registered seller accounts</p>
+					</div>
 				</div>
 			</div>
 
-			<div className="quick-links">
-				<h3>Quick Links</h3>
-				<ul>
-					<li><Link to="/clients">🔎 Manage Clients</Link></li>
-					<li><Link to="/sellers">🧑‍💼 Manage Sellers</Link></li>
-					<li><Link to="/dashboard">🏷️ All Shops</Link></li>
-				</ul>
+			<div className="charts-section">
+				<div className="chart-container">
+					<h3>Data Visualization</h3>
+					<div className="chart-wrapper">
+						<div className="chart-item">
+							<Bar data={barData} options={barOptions} />
+						</div>
+						<div className="chart-item">
+							<Pie data={pieData} options={pieOptions} />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div className="quick-actions">
+				<h3>Quick Actions</h3>
+				<div className="actions-grid">
+					<Link to="/clients" className="action-card">
+						<div className="action-icon">🔍</div>
+						<div className="action-content">
+							<h4>Manage Clients</h4>
+							<p>View and manage client accounts</p>
+						</div>
+					</Link>
+					<Link to="/sellers" className="action-card">
+						<div className="action-icon">👨‍💼</div>
+						<div className="action-content">
+							<h4>Manage Sellers</h4>
+							<p>Oversee seller registrations</p>
+						</div>
+					</Link>
+					<Link to="/dashboard" className="action-card">
+						<div className="action-icon">📈</div>
+						<div className="action-content">
+							<h4>View Analytics</h4>
+							<p>Detailed platform analytics</p>
+						</div>
+					</Link>
+				</div>
 			</div>
 		</div>
 	)
