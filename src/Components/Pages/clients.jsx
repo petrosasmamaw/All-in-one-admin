@@ -48,7 +48,7 @@ const Clients = () => {
 		</div>
 		<h2>Clients</h2>
 
-		{status === "loading" && <div className="nav-loading">Loading...</div>}
+		{status === "loading" && <div className="nav-loading">Loading..</div>}
 
 		<div className="table-wrap">
 					<table className="clients-table">
